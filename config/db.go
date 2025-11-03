@@ -12,18 +12,21 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-func ConnectDB() (*gorm.DB, error) {
+func GetDB() (*gorm.DB, error) {
+
 	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, using system env")
+		log.Println("Warning: .env file not found, using system environment")
 	}
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+	dbUser := getRequiredEnv("DB_USER")
+	dbPass := getRequiredEnv("DB_PASS")
+	dbHost := getRequiredEnv("DB_HOST")
+	dbPort := getRequiredEnv("DB_PORT")
+	dbName := getRequiredEnv("DB_NAME")
 
-		getEnv("DB_USER", "root"),
-		getEnv("DB_PASS", ""),
-		getEnv("DB_HOST", "localhost"),
-		getEnv("DB_PORT", "3306"),
-		getEnv("DB_NAME", "foodcourt_db"),
+	dsn := fmt.Sprintf(
+		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		dbUser, dbPass, dbHost, dbPort, dbName,
 	)
 
 	gormConfig := &gorm.Config{
@@ -40,7 +43,7 @@ func ConnectDB() (*gorm.DB, error) {
 
 	db, err := gorm.Open(mysql.Open(dsn), gormConfig)
 	if err != nil {
-		panic("Failed connecting to Database" + err.Error())
+		return nil, fmt.Errorf("failed to connect to MySQL: %w", err)
 	}
 
 	sqlDB, err := db.DB()
@@ -60,9 +63,10 @@ func ConnectDB() (*gorm.DB, error) {
 	return db, nil
 }
 
-func getEnv(key, fallback string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
+func getRequiredEnv(key string) string {
+	value, exists := os.LookupEnv(key)
+	if !exists {
+		log.Fatalf("ERROR: Environment variable %s is required but not set!", key)
 	}
-	return fallback
+	return value
 }
