@@ -17,6 +17,10 @@ dev:
 	fi
 	@air
 
+migrate:
+	@echo "Running migrations..."
+	@go run cmd/migrate/main.go
+
 
 # === Test ===
 test:
@@ -34,8 +38,9 @@ help:
 	@echo "FoodCourt Makefile"
 	@echo ""
 	@echo "Commands:"
-	@echo "  make run        - Start server (AutoMigrate if first time)"
-	@echo "  make dev        - Hot reload (AutoMigrate if first time)"
+	@echo "  make run        - Start server"
+	@echo "  make dev        - Hot reload (air)"
+	@echo "  make migrate    - Run migrations"
 	@echo "  make test       - Run tests"
 	@echo "  make clean      - Clean build"
 	@echo "  make help       - Show this help"
