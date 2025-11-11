@@ -34,7 +34,7 @@ func (r *menuRepository) Create(menu *model.Menu) error {
 
 func (r *menuRepository) FindAll() ([]model.Menu, error) {
 	var menus []model.Menu
-	err := r.db.Find(&menus).Error
+	err := r.db.Preload("Booth").Find(&menus).Error
 	return menus, err
 }
 
@@ -46,7 +46,12 @@ func (r *menuRepository) FindByBoothID(boothID uint) ([]model.Menu, error) {
 
 func (r *menuRepository) FindActive() ([]model.Menu, error) {
 	var menus []model.Menu
-	err := r.db.Preload("Booth").Where("is_available = ?", true).Find(&menus).Error
+	err := r.db.
+		Preload("Booth").
+		Joins("JOIN booths ON booths.id = menus.booth_id").
+		Where("menus.is_available = ? AND booths.is_active = ?", true, true).
+		Find(&menus).Error
+
 	return menus, err
 }
 

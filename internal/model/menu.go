@@ -5,7 +5,7 @@ type Menu struct {
 	BoothID     uint   `gorm:"not null"`
 	Name        string `gorm:"size:100;not null"`
 	Price       int    `gorm:"not null"`
-	IsAvailable bool   `gorm:"default:true"`
+	IsAvailable bool
 	Booth       Booth  `gorm:"foreignKey:BoothID"`
 	Category    string `gorm:"size:20;default:'makanan'"`
 	ImagePath   string `gorm:"size:255"`

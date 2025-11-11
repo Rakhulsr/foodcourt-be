@@ -21,6 +21,9 @@ migrate:
 	@echo "Running migrations..."
 	@go run cmd/migrate/main.go
 
+seed:
+	@echo "Running seeder..."
+	@go run cmd/seed/main.go
 
 # === Test ===
 test:

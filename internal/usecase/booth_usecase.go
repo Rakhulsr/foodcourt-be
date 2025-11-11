@@ -81,14 +81,15 @@ func (u *boothUseCase) GetByID(id uint) (*dto.BoothResponse, error) {
 
 func (u *boothUseCase) Create(req dto.BoothCreateRequest) (*dto.BoothResponse, error) {
 
-	if _, err := u.repo.FindByName(req.Name); err == nil {
+	existing, err := u.repo.FindByExactName(req.Name)
+	if err == nil && existing != nil {
 		return nil, errors.New("name already exists")
 	}
 
 	booth := &model.Booth{
 		Name:     req.Name,
 		WhatsApp: req.WhatsApp,
-		IsActive: true,
+		IsActive: req.IsActive,
 	}
 
 	if err := u.repo.Create(booth); err != nil {

@@ -11,6 +11,7 @@ type BoothRepository interface {
 	FindActive() ([]model.Booth, error)
 	FindByID(id uint) (*model.Booth, error)
 	FindByName(keyword string) ([]model.Booth, error)
+	FindByExactName(name string) (*model.Booth, error)
 	Update(booth *model.Booth) error
 	Delete(id uint) error
 }
@@ -40,6 +41,12 @@ func (r *BoothRepositoryImpl) FindByID(id uint) (*model.Booth, error) {
 		return nil, err
 	}
 	return &booth, nil
+}
+
+func (r *BoothRepositoryImpl) FindByExactName(name string) (*model.Booth, error) {
+	var booth model.Booth
+	err := r.db.Where("LOWER(name) = LOWER(?)", name).First(&booth).Error
+	return &booth, err
 }
 
 func (r *BoothRepositoryImpl) FindByName(keyword string) ([]model.Booth, error) {
