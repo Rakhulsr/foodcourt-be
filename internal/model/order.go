@@ -12,8 +12,8 @@ type Order struct {
 	PaymentStatus string `gorm:"type:enum('pending','paid');default:'pending'"`
 	OrderStatus   string `gorm:"type:enum('pending','confirmed','preparing','ready','completed');default:'pending'"`
 
-	MidtransOrderID     string `gorm:"size:100"`
-	MidtransPaymentType string `gorm:"size:50"`
+	XenditInvoiceID string `gorm:"size:100"`
+	InvoiceURL      string `gorm:"size:255"`
 
 	AdminTransferred bool `gorm:"default:false"`
 	AdminNote        string
