@@ -44,6 +44,8 @@ func (u *menuUseCase) ListActive() (*dto.MenuListResponse, error) {
 			Name:        m.Name,
 			Price:       m.Price,
 			IsAvailable: m.IsAvailable,
+			ImagePath:   m.ImagePath,
+			Category:    m.Category,
 			Booth: struct {
 				ID   uint   `json:"id"`
 				Name string `json:"name"`
@@ -67,6 +69,7 @@ func (u *menuUseCase) ListAll() (*dto.MenuListResponse, error) {
 			Name:        m.Name,
 			Price:       m.Price,
 			IsAvailable: m.IsAvailable,
+			ImagePath:   m.ImagePath,
 			Booth: struct {
 				ID   uint   `json:"id"`
 				Name string `json:"name"`
@@ -87,6 +90,8 @@ func (u *menuUseCase) GetByID(id uint) (*dto.MenuResponse, error) {
 		Name:        menu.Name,
 		Price:       menu.Price,
 		IsAvailable: menu.IsAvailable,
+		Category:    menu.Category,
+		ImagePath:   menu.ImagePath,
 		Booth: struct {
 			ID   uint   `json:"id"`
 			Name string `json:"name"`
@@ -130,6 +135,8 @@ func (u *menuUseCase) FindByName(keyword string) (*dto.MenuListResponse, error) 
 			Name:        m.Name,
 			Price:       m.Price,
 			IsAvailable: m.IsAvailable,
+			ImagePath:   m.ImagePath,
+			Category:    m.Category,
 			Booth: struct {
 				ID   uint   `json:"id"`
 				Name string `json:"name"`

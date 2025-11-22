@@ -66,22 +66,40 @@ func (r *menuRepository) FindByID(id uint) (*model.Menu, error) {
 
 func (r *menuRepository) FindActiveByBoothID(boothID uint) ([]model.Menu, error) {
 	var menus []model.Menu
-	err := r.db.Preload("Booth").Where("booth_id = ? AND is_available = ?", boothID, true).Find(&menus).Error
+	err := r.db.
+		Preload("Booth").
+		Joins("JOIN booths ON booths.id = menus.booth_id").
+		Where("menus.booth_id = ? AND menus.is_available = ? AND booths.is_active = ?", boothID, true, true).
+		Find(&menus).Error
 	return menus, err
 }
 
 func (r *menuRepository) FindByName(keyword string) ([]model.Menu, error) {
 	var menus []model.Menu
-	err := r.db.Preload("Booth").Where("LOWER(name) LIKE ?", "%"+keyword+"%").Find(&menus).Error
+
+	searchKey := "%" + keyword + "%"
+
+	err := r.db.
+		Preload("Booth").
+		Joins("JOIN booths ON booths.id = menus.booth_id").
+		Where(
+			"(LOWER(menus.name) LIKE ? OR LOWER(booths.name) LIKE ?) AND menus.is_available = ? AND booths.is_active = ?",
+			searchKey, searchKey, true, true,
+		).
+		Find(&menus).Error
+
 	return menus, err
 }
 
 func (r *menuRepository) FindByCategory(category string) ([]model.Menu, error) {
 	var menus []model.Menu
-	err := r.db.Preload("Booth").Where("category = ?", category).Find(&menus).Error
+	err := r.db.
+		Preload("Booth").
+		Joins("JOIN booths ON booths.id = menus.booth_id").
+		Where("menus.category = ? AND menus.is_available = ? AND booths.is_active = ?", category, true, true).
+		Find(&menus).Error
 	return menus, err
 }
-
 func (r *menuRepository) Update(menu *model.Menu) error {
 	return r.db.Save(menu).Error
 }

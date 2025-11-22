@@ -1,16 +1,25 @@
-# Makefile — FoodCourt Clean Architecture
-# Jalankan dari mana saja: make run
+.PHONY: run dev dev-backend dev-frontend db-reset test clean help install
 
-.PHONY: run dev db-reset test clean help
 
-# === DEFAULT: Run Server ===
+install:
+	@echo "Installing Go dependencies..."
+	@go mod tidy
+	@echo "Installing NPM dependencies..."
+	@npm install
+
+
 run:
 	@echo "Starting server..."
 	@go run cmd/web/main.go
 
-# === Hot Reload (Windows compatible) ===
+
 dev:
-	@echo "Starting with hot reload..."
+	@echo "Starting Development Environment..."
+	@make -j 2 dev-backend 
+
+
+dev-backend:
+	@echo "   >>> Starting Backend (Air)..."
 	@if ! command -v air >/dev/null; then \
 		echo "Installing air..."; \
 		go install github.com/air-verse/air@latest; \
@@ -25,25 +34,26 @@ seed:
 	@echo "Running seeder..."
 	@go run cmd/seed/main.go
 
-# === Test ===
+
 test:
 	@echo "Running tests..."
 	@go test -v ./...
 
-# === Clean ===
 clean:
 	@echo "Cleaning..."
 	@go clean
 	@rm -rf tmp/
+	@rm -rf public/css/style.css 
 
-# === Help ===
+
 help:
 	@echo "FoodCourt Makefile"
 	@echo ""
 	@echo "Commands:"
-	@echo "  make run        - Start server"
-	@echo "  make dev        - Hot reload (air)"
-	@echo "  make migrate    - Run migrations"
-	@echo "  make test       - Run tests"
-	@echo "  make clean      - Clean build"
-	@echo "  make help       - Show this help"
+	@echo "  make install     - Install Go & NPM dependencies"
+	@echo "  make dev         - Start Air (Go) & Tailwind (CSS) concurrently"
+	@echo "  make run         - Start server only (no hot reload)"
+	@echo "  make migrate     - Run migrations"
+	@echo "  make seed        - Run seeder"
+	@echo "  make test        - Run tests"
+	@echo "  make clean       - Clean build & temp files"

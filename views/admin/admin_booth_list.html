@@ -1,0 +1,56 @@
+{{ define "admin_booth_list.html" }}
+    {{ template "admin_header" . }}
+
+    <div class="bg-sukatani-light w-full p-4 mb-8 rounded-sm shadow-sm">
+        <h2 class="text-2xl font-bold text-black">Food Booth</h2>
+    </div>
+
+    <div class="flex justify-between items-end mb-2">
+        <div class="space-x-6 text-lg">
+            <span class="font-bold border-b-2 border-black pb-1">All Booth</span>
+        </div>
+        <a href="/api/admin/booths/create" class="bg-black text-white px-4 py-2 rounded text-sm flex items-center gap-2 hover:bg-gray-800 transition">
+            <i data-lucide="plus" class="w-4 h-4"></i> Add Items
+        </a>
+    </div>
+
+    <div class="overflow-x-auto rounded-t-lg border border-gray-300">
+        <table class="min-w-full ">
+            <thead class="bg-sukatani-gray">
+                <tr>
+                    <th class="py-3 px-4 text-left font-semibold border-r border-gray-400 w-16 whitespace-nowrap">No.</th>
+                    <th class="py-3 px-4 text-left font-semibold border-r border-gray-400 min-w-[150px]">Booth Name</th>
+                    <th class="py-3 px-4 text-left font-semibold border-r border-gray-400 whitespace-nowrap">WhatsApp</th>
+                    <th class="py-3 px-4 text-left font-semibold border-r border-gray-400 whitespace-nowrap">Status</th>
+                    <th class="py-3 px-4 text-center font-semibold w-32 whitespace-nowrap">Action</th>
+                </tr>
+            </thead>
+            <tbody class="bg-gray-200">
+                {{ range $index, $booth := .Booths }}
+                <tr class="border-t border-gray-300 hover:bg-gray-300 transition">
+                    <td class="py-3 px-4 border-r border-gray-300 align-top">{{ add $index 1 }}</td>
+                    <td class="py-3 px-4 border-r border-gray-300 align-top font-medium break-words">
+                        {{ .Name }}
+                    </td>
+                    <td class="py-3 px-4 border-r border-gray-300">{{ .WhatsApp }}</td>
+                    <td class="py-3 px-4 border-r border-gray-300">
+                        {{ if .IsActive }}
+                            <span class="text-green-700 font-bold">Active</span>
+                        {{ else }}
+                            <span class="text-red-700 font-bold">Inactive</span>
+                        {{ end }}
+                    </td>
+                    <td class="py-3 px-4 text-center flex justify-center gap-4">
+                         <a href="/api/admin/booths/edit/{{ .ID }}"><i data-lucide="pencil" class="w-5 h-5 text-black"></i></a>
+                         <button hx-delete="/api/admin/booths/{{ .ID }}" hx-confirm="Hapus?" hx-target="closest tr" hx-swap="outerHTML">
+                            <i data-lucide="trash-2" class="w-5 h-5 text-black"></i>
+                         </button>
+                    </td>
+                </tr>
+                {{ end }}
+            </tbody>
+        </table>
+    </div>
+
+    {{ template "admin_footer" . }}
+{{ end }}

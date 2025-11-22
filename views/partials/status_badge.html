@@ -1,0 +1,17 @@
+{{ define "status_badge.html" }}
+    <div class="flex flex-col items-center gap-2">
+        <span class="{{ statusColor .OrderStatus }} px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wide shadow-sm">
+            {{ .OrderStatus }}
+        </span>
+
+        {{ if eq .OrderStatus "pending" }}
+            <button hx-post="/api/admin/orders/{{ .OrderCode }}/status" hx-vals='{"status": "confirmed"}' hx-target="#status-area-{{ .OrderCode }}" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded shadow">Konfirmasi</button>
+        {{ else if eq .OrderStatus "confirmed" }}
+            <button hx-post="/api/admin/orders/{{ .OrderCode }}/status" hx-vals='{"status": "preparing"}' hx-target="#status-area-{{ .OrderCode }}" class="bg-yellow-600 hover:bg-yellow-700 text-white text-xs px-2 py-1 rounded shadow">Masak</button>
+        {{ else if eq .OrderStatus "preparing" }}
+             <button hx-post="/api/admin/orders/{{ .OrderCode }}/status" hx-vals='{"status": "ready"}' hx-target="#status-area-{{ .OrderCode }}" class="bg-purple-600 hover:bg-purple-700 text-white text-xs px-2 py-1 rounded shadow">Siap Saji</button>
+        {{ else if eq .OrderStatus "ready" }}
+             <button hx-post="/api/admin/orders/{{ .OrderCode }}/status" hx-vals='{"status": "completed"}' hx-target="#status-area-{{ .OrderCode }}" class="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1 rounded shadow">Selesai</button>
+        {{ end }}
+    </div>
+{{ end }}

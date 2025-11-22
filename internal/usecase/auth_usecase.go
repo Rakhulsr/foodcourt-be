@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"errors"
+	"os"
 	"time"
 
 	"github.com/Rakhulsr/foodcourt/internal/dto"
@@ -8,8 +10,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
-
-var jwtSecret = []byte("foodcourt-secret-key-2025")
 
 type AuthUseCase interface {
 	Login(req dto.LoginRequest) (*dto.LoginResponse, error)
@@ -24,22 +24,25 @@ func NewAuthUseCase(adminRepo repository.AdminRepository) AuthUseCase {
 }
 
 func (u *authUseCase) Login(req dto.LoginRequest) (*dto.LoginResponse, error) {
+
 	admin, err := u.adminRepo.FindByUsername(req.Username)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("username atau password salah")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(req.Password)); err != nil {
-		return nil, err
+		return nil, errors.New("username atau password salah")
 	}
+
+	secretKey := os.Getenv("SECRET_KEY")
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"admin_id": admin.ID,
-
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
+		"username": admin.Username,
+		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	})
 
-	tokenString, err := token.SignedString(jwtSecret)
+	tokenString, err := token.SignedString([]byte(secretKey))
 	if err != nil {
 		return nil, err
 	}
@@ -48,6 +51,7 @@ func (u *authUseCase) Login(req dto.LoginRequest) (*dto.LoginResponse, error) {
 		Token:   tokenString,
 		Message: "Login successful",
 	}
+
 	resp.Admin.ID = admin.ID
 	resp.Admin.Username = admin.Username
 	resp.Admin.FullName = admin.FullName

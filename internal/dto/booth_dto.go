@@ -3,15 +3,15 @@ package dto
 import "time"
 
 type BoothCreateRequest struct {
-	Name     string `json:"name" binding:"required"`
-	WhatsApp string `json:"whatsapp" binding:"required"`
-	IsActive bool   `json:"is_active" binding:"omitempty"`
+	Name     string `json:"name" form:"name" binding:"required"`
+	WhatsApp string `json:"whatsapp" form:"whatsapp" binding:"required"`
+	IsActive bool   `json:"is_active"`
 }
 
 type BoothUpdateRequest struct {
-	Name     string `json:"name" binding:"omitempty"`
-	WhatsApp string `json:"whatsapp" binding:"omitempty"`
-	IsActive bool   `json:"is_active" binding:"omitempty"`
+	Name     string `json:"name" form:"name"`
+	WhatsApp string `json:"whatsapp" form:"whatsapp"`
+	IsActive bool   `json:"is_active"`
 }
 
 type BoothResponse struct {

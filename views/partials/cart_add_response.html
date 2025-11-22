@@ -1,0 +1,18 @@
+{{ define "cart_add_response.html" }}
+
+    {{ template "flash.html" (dict "Type" "success" "Message" "Menu berhasil masuk keranjang!") }}
+
+    <span id="mobile-cart-count" hx-swap-oob="true"
+          class="absolute top-1 right-1 bg-red-500 text-white text-[9px] font-bold px-1.5 rounded-full border border-white">
+        {{ .TotalQty }}
+    </span>
+
+    <span id="desktop-cart-count" hx-swap-oob="true" class="text-sm font-semibold">
+        Keranjang ({{ .TotalQty }})
+    </span>
+
+    <p id="floating-qty" hx-swap-oob="true" class="text-xs text-gray-300 font-medium">
+        Pesanan Anda: <span class="font-bold text-white">{{ .TotalQty }} Items</span>
+    </p>
+
+{{ end }}

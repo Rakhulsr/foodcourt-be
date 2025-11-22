@@ -1,0 +1,97 @@
+{{ define "admin_menu_list.html" }}
+    {{ template "admin_header" . }}
+
+
+    <div class="bg-sukatani-light w-full p-4 mb-8 rounded-sm shadow-sm">
+        <h2 class="text-2xl font-bold text-black">Menu Items</h2>
+    </div>
+
+    <div class="flex justify-between items-end mb-2">
+        <div class="text-lg">
+            <h3 class="font-bold text-xl">All Menu</h3>
+        </div>
+        
+        <a href="/api/admin/menus/create" class="bg-black text-white px-4 py-2 rounded text-sm flex items-center gap-2 hover:bg-gray-800 transition shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+            Add Items
+        </a>
+    </div>
+
+    <div class="overflow-x-auto rounded-t-lg border border-gray-300">
+        <table class="min-w-full ">
+            <thead class="bg-sukatani-gray text-black">
+                <tr>
+                    <th class="py-3 px-4 text-left font-semibold border-r border-gray-400 w-16 whitespace-nowrap">No.</th>
+                    <th class="py-3 px-4 text-left font-semibold border-r border-gray-400 min-w-[200px]">Menu Name</th>
+                    <th class="py-3 px-4 text-left font-semibold border-r border-gray-400 whitespace-nowrap">Price</th>
+                    <th class="py-3 px-4 text-left font-semibold border-r border-gray-400 whitespace-nowrap">Status</th>
+                    <th class="py-3 px-4 text-center font-semibold w-32 whitespace-nowrap">Action</th>
+                </tr>
+            </thead>
+            
+            <tbody class="bg-gray-200">
+                {{ range $index, $menu := .Menus }}
+                <tr class="border-t border-gray-300 hover:bg-gray-300 transition">
+                    <td class="py-3 px-4 border-r border-gray-300">{{ add $index 1 }}</td>
+                    
+                   <td class="py-3 px-4 border-r border-gray-300 align-top">
+                        <div class="flex flex-col sm:flex-row items-start gap-3">
+                            {{ if .ImagePath }}
+                                <img src="{{ .ImagePath }}" class="w-12 h-12 rounded object-cover border border-gray-300 flex-shrink-0">
+                            {{ end }}
+                            
+                            <div>
+                                <div class="font-bold text-black break-words">{{ .Name }}</div>
+                                <div class="text-xs text-gray-600 mt-1">
+                                    <span class="inline-block bg-gray-200 rounded px-1 mb-1">{{ .Category }}</span>
+                                    <br>
+                                    <span class="italic">{{ .Booth.Name }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="py-3 px-4 border-r border-gray-300 font-mono text-sm align-top whitespace-nowrap">
+                        {{ formatRupiah .Price }}
+                    </td>
+
+                    <td class="py-3 px-4 border-r border-gray-300">
+                        {{ if .IsAvailable }}
+                            <span class="text-green-700 font-bold text-sm">Available</span>
+                        {{ else }}
+                            <span class="text-red-700 font-bold text-sm">Unavailable</span>
+                        {{ end }}
+                    </td>
+
+                    <td class="py-3 px-4 text-center">
+                        <div class="flex justify-center gap-4 items-center">
+                            <a href="/api/admin/menus/edit/{{ .ID }}" class="text-black hover:text-gray-600 transition" title="Edit Menu">
+                                <i data-lucide="pencil" class="w-5 h-5 fill-black"></i>
+                            </a>
+
+                            <button 
+                                hx-delete="/api/admin/menus/{{ .ID }}" 
+                                hx-confirm="Yakin ingin menghapus menu '{{ .Name }}'?" 
+                                hx-target="closest tr" 
+                                hx-swap="outerHTML"
+                                class="text-black hover:text-red-600 transition"
+                                title="Delete Menu">
+                                <i data-lucide="trash-2" class="w-5 h-5 fill-black"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {{ else }}
+                <tr>
+                    <td colspan="5" class="py-10 text-center text-gray-500">
+                        Belum ada menu yang terdaftar.
+                    </td>
+                </tr>
+                {{ end }}
+            </tbody>
+        </table>
+    </div>
+
+
+    {{ template "admin_footer" . }}
+{{ end }}

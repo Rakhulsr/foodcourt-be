@@ -1,0 +1,138 @@
+{{ define "admin_order_list.html" }}
+    {{ template "admin_header" . }}
+
+    <div class="bg-sukatani-light w-full p-4 mb-8 rounded-sm shadow-sm">
+        <h2 class="text-2xl font-bold text-black">Order</h2>
+    </div>
+
+   <div class="flex items-end mb-4 space-x-6 text-lg border-b border-gray-300 pb-1">
+        
+        <a href="/api/admin/orders" 
+           class="{{ if eq .ActiveStatus "" }}font-bold text-black border-b-2 border-black{{ else }}text-gray-500 hover:text-black{{ end }} pb-2 px-1 transition-colors">
+           All Orders
+        </a>
+
+        <a href="/api/admin/orders?status=pending" 
+           class="{{ if eq .ActiveStatus "pending" }}font-bold text-black border-b-2 border-black{{ else }}text-gray-500 hover:text-black{{ end }} pb-2 px-1 transition-colors">
+           Pending
+        </a>
+
+        <a href="/api/admin/orders?status=completed" 
+           class="{{ if eq .ActiveStatus "completed" }}font-bold text-black border-b-2 border-black{{ else }}text-gray-500 hover:text-black{{ end }} pb-2 px-1 transition-colors">
+           Completed
+        </a>
+        
+    </div>
+
+    <div class="overflow-x-auto rounded-t-lg border border-gray-300 mt-4">
+        <table class="min-w-full ">
+            <thead class="bg-sukatani-gray text-black">
+                <tr>
+                    <th class="py-3 px-4 text-left font-semibold border-r border-gray-400 whitespace-nowrap">Order Code</th>
+                    <th class="py-3 px-4 text-left font-semibold border-r border-gray-400 min-w-[150px]">Customer</th>
+                    <th class="py-3 px-4 text-left font-semibold border-r border-gray-400 min-w-[200px]">Items</th> 
+                    <th class="py-3 px-4 text-left font-semibold border-r border-gray-400 whitespace-nowrap">Total Price</th>
+                    <th class="py-3 px-4 text-left font-semibold border-r border-gray-400 whitespace-nowrap">Date</th>
+                    <th class="py-3 px-4 text-center font-semibold w-40 whitespace-nowrap">Status & Action</th>
+                </tr>
+            </thead>
+            
+            <tbody class="bg-gray-200">
+                {{ range .Orders }}
+                <tr class="border-t border-gray-300 hover:bg-gray-300 transition text-sm">
+                    <td class="py-3 px-4 border-r border-gray-300 font-bold align-top whitespace-nowrap">{{ .OrderCode }}</td>
+                    
+                    <td class="py-3 px-4 border-r border-gray-300 align-top break-words">
+                        {{ .CustomerName }}
+                        <div class="text-xs text-gray-500 mt-1">Meja: {{ .TableNumber }}</div>
+                    </td>
+
+                   <td class="py-3 px-4 border-r border-gray-300 align-top">
+                        <ul class="list-disc list-inside text-xs space-y-1">
+                            {{ range .Items }}
+                                <li class="break-words">
+                                    <span class="font-bold">{{ .Quantity }}x</span> (ID: {{ .MenuID }})
+                                    </li>
+                            {{ end }}
+                        </ul>
+                    </td>
+
+                    <td class="py-3 px-4 border-r border-gray-300 font-mono">
+                        {{ formatRupiah .TotalAmount }}
+                        <div class="text-xs text-gray-500 uppercase mt-1">{{ .PaymentMethod }}</div>
+                    </td>
+
+                    <td class="py-3 px-4 border-r border-gray-300">
+                        {{ formatDate .CreatedAt }}
+                    </td>
+
+                    <td class="py-3 px-4 text-center" id="status-area-{{ .OrderCode }}">
+                        {{ template "status_badge_action" . }}
+                    </td>
+                </tr>
+                {{ else }}
+                <tr>
+                    <td colspan="6" class="py-10 text-center text-gray-500">
+                        Belum ada pesanan masuk.
+                    </td>
+                </tr>
+                {{ end }}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="mt-4 flex justify-between items-center text-sm text-gray-600">
+        <div>Total: {{ .Total }} Orders</div>
+        <div class="flex gap-2">
+            {{ if gt .Page 1 }}
+            <a href="/api/admin/orders?page={{ add .Page -1 }}" class="px-3 py-1 border rounded hover:bg-gray-100">Prev</a>
+            {{ end }}
+            <span class="px-3 py-1 border bg-gray-200">{{ .Page }}</span>
+            <a href="/api/admin/orders?page={{ add .Page 1 }}" class="px-3 py-1 border rounded hover:bg-gray-100">Next</a>
+        </div>
+    </div>
+
+{{ template "admin_footer" . }}
+{{ end }}
+
+
+{{ define "status_badge_action" }}
+    <div class="flex flex-col items-center gap-2">
+        <span class="{{ statusColor .OrderStatus }} px-2 py-1 rounded-full text-xs font-bold uppercase tracking-wide shadow-sm">
+            {{ .OrderStatus }}
+        </span>
+
+        {{ if eq .OrderStatus "pending" }}
+            <button hx-post="/api/admin/orders/{{ .OrderCode }}/status" 
+                    hx-vals='{"status": "confirmed"}' 
+                    hx-target="#status-area-{{ .OrderCode }}" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded shadow">
+                Konfirmasi
+            </button>
+        
+        {{ else if eq .OrderStatus "confirmed" }}
+            <button hx-post="/api/admin/orders/{{ .OrderCode }}/status" 
+                    hx-vals='{"status": "preparing"}' 
+                    hx-target="#status-area-{{ .OrderCode }}"
+                    class="bg-yellow-600 hover:bg-yellow-700 text-white text-xs px-2 py-1 rounded shadow">
+                Masak
+            </button>
+
+        {{ else if eq .OrderStatus "preparing" }}
+             <button hx-post="/api/admin/orders/{{ .OrderCode }}/status" 
+                    hx-vals='{"status": "ready"}' 
+                    hx-target="#status-area-{{ .OrderCode }}"
+                    class="bg-purple-600 hover:bg-purple-700 text-white text-xs px-2 py-1 rounded shadow">
+                Siap Saji
+            </button>
+
+        {{ else if eq .OrderStatus "ready" }}
+             <button hx-post="/api/admin/orders/{{ .OrderCode }}/status" 
+                    hx-vals='{"status": "completed"}' 
+                    hx-target="#status-area-{{ .OrderCode }}"
+                    class="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1 rounded shadow">
+                Selesai
+            </button>
+        {{ end }}
+    </div>
+{{ end }}

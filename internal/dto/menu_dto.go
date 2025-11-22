@@ -1,17 +1,18 @@
 package dto
 
 type MenuCreateRequest struct {
-	Name     string `json:"name" binding:"required"`
-	Price    int    `json:"price" binding:"required,min=1000"`
-	Category string `json:"category" binding:"required,oneof=makanan minuman"`
-	BoothID  uint   `json:"booth_id" binding:"required"`
+	BoothID     uint   `json:"booth_id" form:"booth_id" binding:"required"`
+	Name        string `json:"name" form:"name" binding:"required"`
+	Price       int    `json:"price" form:"price" binding:"required"`
+	Category    string `json:"category" form:"category"`
+	IsAvailable bool   `json:"is_available"`
 }
 
 type MenuUpdateRequest struct {
-	Name        string `json:"name" binding:"omitempty"`
-	Price       int    `json:"price" binding:"omitempty,min=1000"`
-	Category    string `json:"category" binding:"omitempty,oneof=makanan minuman"`
-	IsAvailable bool   `json:"is_available" binding:"omitempty"`
+	Name        string `json:"name" form:"name"`
+	Price       int    `json:"price" form:"price"`
+	Category    string `json:"category" form:"category"`
+	IsAvailable bool   `json:"is_available"`
 }
 
 type MenuResponse struct {
@@ -28,6 +29,6 @@ type MenuResponse struct {
 }
 
 type MenuListResponse struct {
-	Menus []MenuResponse `json:"menus"`
 	Total int            `json:"total"`
+	Menus []MenuResponse `json:"menus"`
 }

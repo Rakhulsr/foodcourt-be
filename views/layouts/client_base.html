@@ -1,0 +1,87 @@
+{{ define "client_header" }}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Title }} - Foodcourt Sukatani</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+        theme: {
+            extend: {
+            colors: {
+                sukatani: {
+                green: '#33665a',
+                light: '#9EF0AA',
+                gray: '#D9D9D9',
+                cream: '#E4DCCF',
+                }
+            },
+            fontFamily: {
+                sans: ['Inter', 'sans-serif'],
+            }
+            }
+        }
+        }
+    </script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-sukatani-cream font-sans text-gray-800 min-h-screen pb-32 relative" hx-boost="true" hx-headers='{"X-CSRF-Token": "{{ .csrf_token }}"}'>
+
+    <div id="flash-container">
+        {{ if .FlashMessage }}
+            {{ template "flash.html" (dict "Type" .FlashType "Message" .FlashMessage) }}
+        {{ end }}
+    </div>
+
+    {{ end }}
+
+
+{{ define "client_footer" }}
+    
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 px-6 z-50 rounded-t-2xl shadow-[0_-5px_20px_rgba(0,0,0,0.05)] md:hidden">
+        <div class="max-w-md mx-auto flex justify-around items-center">
+            
+            <a href="/api" class="flex flex-col items-center gap-1 transition group {{ if eq .ActiveTab "home" }}text-sukatani-green{{ else }}text-gray-400 hover:text-sukatani-green{{ end }}" hx-boost="true">
+                <div class="p-2 rounded-xl transition {{ if eq .ActiveTab "home" }}bg-sukatani-green/10{{ else }}group-hover:bg-gray-50{{ end }}">
+                    <i data-lucide="home" class="w-6 h-6 {{ if eq .ActiveTab "home" }}fill-sukatani-green{{ end }}"></i>
+                </div>
+                <span class="text-[10px] {{ if eq .ActiveTab "home" }}font-bold{{ else }}font-medium{{ end }}">Beranda</span>
+            </a>
+
+            <a href="/cart" class="flex flex-col items-center gap-1 transition group {{ if eq .ActiveTab "cart" }}text-sukatani-green{{ else }}text-gray-400 hover:text-sukatani-green{{ end }}" hx-boost="true">
+                <div class="p-2 rounded-xl transition {{ if eq .ActiveTab "cart" }}bg-sukatani-green/10{{ else }}group-hover:bg-gray-50{{ end }} relative">
+                    <i data-lucide="shopping-cart" class="w-6 h-6 {{ if eq .ActiveTab "cart" }}fill-sukatani-green{{ end }}"></i>
+                    
+                    {{ if .TotalQty }}
+                    <span id="mobile-cart-count" 
+                        class="absolute top-1 right-1 bg-red-500 text-white text-[9px] font-bold px-1.5 rounded-full border border-white {{ if eq .TotalQty 0 }}hidden{{ end }}">
+                        {{ .TotalQty }}
+                    </span>
+                    {{ end }}
+                </div>
+                <span class="text-[10px] {{ if eq .ActiveTab "cart" }}font-bold{{ else }}font-medium{{ end }}">Keranjang</span>
+            </a>
+
+        </div>
+    </nav>
+
+    <script>
+        lucide.createIcons();
+        document.body.addEventListener('htmx:afterSwap', function() {
+            lucide.createIcons();
+        });
+    </script>
+    
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</body>
+</html>
+{{ end }}

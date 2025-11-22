@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"net/http"
 	"os"
 	"strings"
 
@@ -10,24 +11,32 @@ import (
 
 func JWTAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		jwtSecret := []byte(os.Getenv("SECRET_KEY"))
+		var tokenStr string
 
-		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			c.JSON(401, gin.H{"error": "Authorization header required"})
-			c.Abort()
+		cookie, err := c.Cookie("admin_token")
+		if err == nil {
+			tokenStr = cookie
+		}
+
+		if tokenStr == "" {
+			authHeader := c.GetHeader("Authorization")
+			if authHeader != "" {
+				tokenStr = strings.TrimPrefix(authHeader, "Bearer ")
+			}
+		}
+
+		if tokenStr == "" {
+			handleUnauthorized(c)
 			return
 		}
 
-		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
-
+		jwtSecret := []byte(os.Getenv("SECRET_KEY"))
 		token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 			return jwtSecret, nil
 		})
 
 		if err != nil || !token.Valid {
-			c.JSON(401, gin.H{"error": "Invalid token"})
-			c.Abort()
+			handleUnauthorized(c)
 			return
 		}
 
@@ -35,4 +44,16 @@ func JWTAuth() gin.HandlerFunc {
 		c.Set("admin_id", claims["admin_id"])
 		c.Next()
 	}
+}
+
+func handleUnauthorized(c *gin.Context) {
+
+	if strings.Contains(c.Request.Header.Get("Accept"), "text/html") {
+		c.Redirect(http.StatusFound, "/auth/login")
+		c.Abort()
+		return
+	}
+
+	c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+	c.Abort()
 }

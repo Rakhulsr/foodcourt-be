@@ -1,0 +1,42 @@
+{{ define "flash.html" }}
+<div id="flash-container" hx-swap-oob="afterbegin">
+    {{ if .Message }}
+    <div class="fixed top-5 right-5 z-50 transition-all duration-500 transform translate-x-0" 
+         id="toast-notification"
+         role="alert">
+        
+        <div class="flex items-center w-full max-w-xs p-4 text-black bg-white rounded-lg shadow dark:text-black dark:bg-gray-400 border-l-4 {{ if eq .Type "error" }}border-red-500{{ else }}border-green-500{{ end }}" role="alert">
+            <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg {{ if eq .Type "error" }}text-red-500 bg-red-100{{ else }}text-green-500 bg-green-100{{ end }}">
+                {{ if eq .Type "error" }}
+                    <i data-lucide="x-circle" class="w-5 h-5"></i>
+                {{ else }}
+                    <i data-lucide="check-circle" class="w-5 h-5"></i>
+                {{ end }}
+            </div>
+            <div class="ml-3 text-sm font-normal text-black">{{ .Message }}</div>
+            <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8 " onclick="closeToast(this)">
+                
+                <i data-lucide="x" class="w-6 h-4"></i>
+            </button>
+        </div>
+
+        <script>
+            lucide.createIcons(); 
+            setTimeout(() => {
+                const toast = document.getElementById('toast-notification');
+                if (toast) {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 500); 
+                }
+            }, 4000); 
+
+            function closeToast(btn) {
+                const toast = btn.closest('#toast-notification');
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }
+        </script>
+    </div>
+    {{ end }}
+</div>
+{{ end }}
