@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/Rakhulsr/foodcourt/config"
 	"github.com/Rakhulsr/foodcourt/pkg/server"
 	"github.com/joho/godotenv"
 )
@@ -14,6 +15,8 @@ func main() {
 	if err != nil {
 		log.Println("No .env file found or failed to load")
 	}
+
+	config.InitXendit()
 
 	if err := server.Run(); err != nil {
 		log.Fatal("Server failed:", err)

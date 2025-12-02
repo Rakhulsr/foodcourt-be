@@ -2,9 +2,11 @@ package client
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/Rakhulsr/foodcourt/internal/dto"
 	"github.com/Rakhulsr/foodcourt/internal/usecase"
@@ -128,12 +130,32 @@ func (h *MenuHandler) ClientHome(c *gin.Context) {
 
 	cookie, _ := c.Cookie("user_cart")
 	totalQty := 0
+	summaryText := ""
+
 	if cookie != "" {
 		jsonStr, _ := url.QueryUnescape(cookie)
 		var items []dto.CartItemCookie
 		json.Unmarshal([]byte(jsonStr), &items)
+
+		var itemNames []string
 		for _, item := range items {
 			totalQty += item.Quantity
+
+			for _, m := range menusResp.Menus {
+				if m.ID == item.MenuID {
+
+					itemNames = append(itemNames, fmt.Sprintf("%s x%d", m.Name, item.Quantity))
+					break
+				}
+			}
+		}
+
+		if len(itemNames) > 0 {
+			summaryText = strings.Join(itemNames, ", ")
+
+			if len(summaryText) > 35 {
+				summaryText = summaryText[:32] + "..."
+			}
 		}
 	}
 
@@ -147,5 +169,6 @@ func (h *MenuHandler) ClientHome(c *gin.Context) {
 		"TotalQty":     totalQty,
 		"csrf_token":   c.GetString("csrf_token"),
 		"ActiveTab":    "home",
+		"CartSummary":  summaryText,
 	})
 }

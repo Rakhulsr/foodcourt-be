@@ -1,0 +1,98 @@
+{{ define "client_checkout.html" }}
+{{ template "client_header" . }}
+
+<main class="container mx-auto px-4 pt-6 pb-20 min-h-screen max-w-lg">
+
+    <div class="w-full bg-sukatani-green rounded-[2rem] p-6 text-center shadow-xl relative z-10 mx-auto mb-6">
+        <a href="/cart" class="absolute left-4 top-4 p-2 bg-white/20 rounded-full hover:bg-white/30 transition text-white" hx-boost="true">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+        </a>
+        <div class="flex flex-col items-center justify-center">
+            <img src="/static/images/logo.png" alt="Foodcourt Sukatani" class="h-16 w-auto mb-2 object-contain ">
+            <h1 class="text-xl font-bold text-white tracking-wide font-sans">Konfirmasi Pembayaran</h1>
+        </div>
+    </div>
+
+    <form action="/api/orders" method="POST" id="checkout-form" class="space-y-6" hx-boost="false">
+        <input type="hidden" name="csrf_token" value="{{ .csrf_token }}">
+        
+        
+        <input type="hidden" name="customer_name" value="{{ .CustomerName }}">
+        <input type="hidden" name="table_number" value="{{ .TableNumber }}"> 
+        
+        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm flex justify-between items-center">
+            
+            <div>
+                <p class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Atas Nama</p>
+                <h2 class="text-xl font-bold text-sukatani-dark truncate max-w-[200px]">{{ .CustomerName }}</h2>
+            </div>
+
+            <div class="bg-sukatani-green/10 px-4 py-2 rounded-xl text-center border border-sukatani-green/20">
+                <p class="text-[10px] text-sukatani-green font-bold uppercase">Meja</p>
+                <span class="text-2xl font-black text-sukatani-dark">{{ .TableNumber }}</span>
+            </div>
+        </div>
+
+        <div class="bg-sukatani-green text-white rounded-2xl p-6 shadow-lg">
+            <h3 class="text-center text-sm font-medium opacity-80 mb-4 border-b border-white/20 pb-2">Rincian Menu</h3>
+            
+            <div class="space-y-4 text-sm mb-6">
+                {{ range .CartItems }}
+                <div class="flex flex-col border-b border-white/10 pb-2 last:border-0">
+                    <div class="flex justify-between font-bold">
+                        <span>{{ .Name }} <span class="text-xs opacity-70 font-normal">x{{ .Quantity }}</span></span>
+                        <span class="font-mono">{{ formatRupiah .SubTotal }}</span>
+                    </div>
+                    {{ if .Notes }}
+                    <p class="text-xs text-yellow-200 italic mt-1">"{{ .Notes }}"</p>
+                    {{ end }}
+                </div>
+                {{ end }}
+            </div>
+
+            <div class="pt-4 border-t border-white/20 flex justify-between items-center font-bold">
+                <span>TOTAL BAYAR</span>
+                <span class="text-2xl font-mono">{{ formatRupiah .TotalAmount }}</span>
+            </div>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            <h3 class="text-sm font-bold text-gray-700 mb-4 text-center uppercase tracking-wide">Pilih Metode Bayar</h3>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <label class="cursor-pointer group relative">
+                    <input type="radio" name="payment_method" value="cash" class="peer sr-only" checked>
+                    <div class="h-full bg-gray-50 peer-checked:bg-sukatani-green/10 peer-checked:border-sukatani-green border-2 border-transparent rounded-xl p-4 flex flex-col items-center justify-center transition hover:bg-gray-100">
+                        <i data-lucide="banknote" class="w-8 h-8 mb-2 text-gray-400 peer-checked:text-sukatani-green"></i>
+                        <span class="font-bold text-sm text-gray-600 peer-checked:text-sukatani-green">CASH</span>
+                        <span class="text-[10px] text-gray-400 mt-1 text-center">Bayar di Kasir</span>
+                    </div>
+                    <div class="absolute top-2 right-2 text-sukatani-green opacity-0 peer-checked:opacity-100 transition transform scale-0 peer-checked:scale-100">
+                        <i data-lucide="check-circle-2" class="w-5 h-5 fill-white"></i>
+                    </div>
+                </label>
+
+                <label class="cursor-pointer group relative">
+                    <input type="radio" name="payment_method" value="qris" class="peer sr-only">
+                    <div class="h-full bg-gray-50 peer-checked:bg-sukatani-green/10 peer-checked:border-sukatani-green border-2 border-transparent rounded-xl p-4 flex flex-col items-center justify-center transition hover:bg-gray-100">
+                        <i data-lucide="qr-code" class="w-8 h-8 mb-2 text-gray-400 peer-checked:text-sukatani-green"></i>
+                        <span class="font-bold text-sm text-gray-600 peer-checked:text-sukatani-green">QRIS</span>
+                        <span class="text-[10px] text-gray-400 mt-1 text-center">Scan QR Code</span>
+                    </div>
+                    <div class="absolute top-2 right-2 text-sukatani-green opacity-0 peer-checked:opacity-100 transition transform scale-0 peer-checked:scale-100">
+                        <i data-lucide="check-circle-2" class="w-5 h-5 fill-white"></i>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <button type="submit" class="w-full bg-sukatani-green text-white font-bold py-4 rounded-2xl hover:bg-opacity-90 transition shadow-xl transform active:scale-95 flex justify-center items-center gap-2 text-lg mt-8">
+            <span>Proses Pesanan</span>
+            <i data-lucide="check-circle" class="w-5 h-5"></i>
+        </button>
+    </form>
+
+</main>
+
+{{ template "client_footer" . }}
+{{ end }}

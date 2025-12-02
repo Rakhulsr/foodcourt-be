@@ -31,12 +31,12 @@ func (h *OrderHandler) AdminList(c *gin.Context) {
 	}
 
 	c.HTML(http.StatusOK, "admin_order_list.html", gin.H{
-		"Orders":     resp.Data,
-		"Total":      resp.Total,
-		"Page":       resp.Page,
-		"ActiveMenu": "order",
-		"Title":      "Daftar Pesanan",
-
+		"Orders":       resp.Data,
+		"Total":        resp.Total,
+		"Page":         resp.Page,
+		"ActiveMenu":   "order",
+		"Title":        "Daftar Pesanan",
+		"csrf_token":   c.GetString("csrf_token"),
 		"ActiveStatus": status,
 	})
 }
@@ -56,10 +56,13 @@ func (h *OrderHandler) AdminUpdateStatus(c *gin.Context) {
 		return
 	}
 
+	updatedOrder, _ := h.orderUsecase.GetOrderByCode(code)
+
 	data := gin.H{
-		"PaymentStatus": "paid",
-		"OrderStatus":   req.Status,
+		"Order":         updatedOrder,
+		"PaymentStatus": updatedOrder.PaymentStatus,
+		"CsrfToken":     c.GetString("csrf_token"),
 	}
 
-	c.HTML(http.StatusOK, "status_badge.html", data)
+	c.HTML(http.StatusOK, "admin_order_row.html", data)
 }

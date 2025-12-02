@@ -43,5 +43,7 @@ func (h *DashboardHandler) Dashboard(c *gin.Context) {
 		"Outcome":    0,
 		"TotalOrder": totalOrder,
 		"Orders":     orders,
+
+		"csrf_token": c.GetString("csrf_token"),
 	})
 }

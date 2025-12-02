@@ -48,6 +48,8 @@ func (h *MenuHandler) ShowCreateForm(c *gin.Context) {
 	c.HTML(http.StatusOK, "admin_menu_form.html", gin.H{
 		"Type":       "create",
 		"Title":      "Tambah Menu Baru",
+		"ActiveMenu": "menu",
+
 		"Booths":     booths.Booths,
 		"csrf_token": c.GetString("csrf_token"),
 	})
@@ -129,6 +131,8 @@ func (h *MenuHandler) ShowEditForm(c *gin.Context) {
 		"Type":       "edit",
 		"Title":      "Edit Menu: " + menu.Name,
 		"Data":       menu,
+		"ActiveMenu": "menu",
+
 		"Booths":     boothsResp.Booths,
 		"csrf_token": c.GetString("csrf_token"),
 	})

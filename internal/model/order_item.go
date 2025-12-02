@@ -7,5 +7,9 @@ type OrderItem struct {
 	BoothID         uint `gorm:"not null"`
 	Quantity        int  `gorm:"not null"`
 	PriceAtPurchase int  `gorm:"not null"`
-	Notes           string
+
+	Menu Menu `gorm:"foreignKey:MenuID"`
+
+	Booth Booth `gorm:"foreignKey:BoothID"`
+	Notes string
 }

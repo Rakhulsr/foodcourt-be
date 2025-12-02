@@ -3,10 +3,10 @@ package dto
 import "github.com/Rakhulsr/foodcourt/internal/model"
 
 type CreateOrderRequest struct {
-	CustomerName  string            `json:"customer_name"`
-	TableNumber   string            `json:"table_number"`
-	PaymentMethod string            `json:"payment_method"`
-	Items         []model.OrderItem `json:"items"`
+	CustomerName  string                   `json:"customer_name" form:"customer_name" binding:"required"`
+	TableNumber   string                   `json:"table_number" form:"table_number"`
+	PaymentMethod string                   `json:"payment_method" form:"payment_method" binding:"required"`
+	Items         []CreateOrderItemRequest `json:"items"`
 }
 
 type CreateOrderResponse struct {
@@ -28,7 +28,7 @@ type OrderListResponse struct {
 }
 
 type UpdateStatusRequest struct {
-	Status string `json:"status" binding:"required"`
+	Status string `json:"status" form:"status" binding:"required"`
 }
 
 type XenditCallbackRequest struct {

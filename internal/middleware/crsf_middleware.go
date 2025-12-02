@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/Rakhulsr/foodcourt/utils"
 	"github.com/gin-gonic/gin"
@@ -9,6 +10,10 @@ import (
 
 func CSRFProtection() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if strings.Contains(c.Request.URL.Path, "/webhooks/") {
+			c.Next()
+			return
+		}
 
 		csrfToken, err := c.Cookie("csrf_token")
 

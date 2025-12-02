@@ -1,59 +1,50 @@
-.PHONY: run dev dev-backend dev-frontend db-reset test clean help install
 
-
-install:
-	@echo "Installing Go dependencies..."
-	@go mod tidy
-	@echo "Installing NPM dependencies..."
-	@npm install
-
-
-run:
-	@echo "Starting server..."
-	@go run cmd/web/main.go
+.PHONY: run dev tidy migrate seed clean help
 
 
 dev:
-	@echo "Starting Development Environment..."
-	@make -j 2 dev-backend 
-
-
-dev-backend:
-	@echo "   >>> Starting Backend (Air)..."
+	@echo "Checking for Air..."
 	@if ! command -v air >/dev/null; then \
 		echo "Installing air..."; \
 		go install github.com/air-verse/air@latest; \
 	fi
+	@echo ">>> Starting Server..."
 	@air
+
+run:
+	@echo ">>> Starting Server..."
+	@go run cmd/web/main.go
+
+tidy:
+	@echo "Tidying up Go modules..."
+	@go mod tidy
 
 migrate:
 	@echo "Running migrations..."
 	@go run cmd/migrate/main.go
 
 seed:
-	@echo "Running seeder..."
+	@echo "Seeding database..."
 	@go run cmd/seed/main.go
 
+db-reset:
+	@echo "Resetting Database..."
+	@
+	@
+	@make migrate
+	@make seed
 
-test:
-	@echo "Running tests..."
-	@go test -v ./...
 
 clean:
-	@echo "Cleaning..."
+	@echo "Cleaning tmp files..."
 	@go clean
 	@rm -rf tmp/
-	@rm -rf public/css/style.css 
-
 
 help:
-	@echo "FoodCourt Makefile"
-	@echo ""
-	@echo "Commands:"
-	@echo "  make install     - Install Go & NPM dependencies"
-	@echo "  make dev         - Start Air (Go) & Tailwind (CSS) concurrently"
-	@echo "  make run         - Start server only (no hot reload)"
-	@echo "  make migrate     - Run migrations"
-	@echo "  make seed        - Run seeder"
-	@echo "  make test        - Run tests"
-	@echo "  make clean       - Clean build & temp files"
+	@echo "FoodCourt Makefile Commands:"
+	@echo "  make dev       - Jalankan server dengan Hot Reload (Air)"
+	@echo "  make run       - Jalankan server biasa"
+	@echo "  make tidy      - Rapikan go.mod dan download library"
+	@echo "  make migrate   - Update struktur database"
+	@echo "  make seed      - Masukkan data awal (Admin user)"
+	@echo "  make clean     - Hapus file temporary"

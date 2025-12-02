@@ -5,6 +5,7 @@ type MenuCreateRequest struct {
 	Name        string `json:"name" form:"name" binding:"required"`
 	Price       int    `json:"price" form:"price" binding:"required"`
 	Category    string `json:"category" form:"category"`
+	Description string `json:"description" form:"description"`
 	IsAvailable bool   `json:"is_available"`
 }
 
@@ -12,6 +13,7 @@ type MenuUpdateRequest struct {
 	Name        string `json:"name" form:"name"`
 	Price       int    `json:"price" form:"price"`
 	Category    string `json:"category" form:"category"`
+	Description string `json:"description" form:"description"`
 	IsAvailable bool   `json:"is_available"`
 }
 
@@ -21,6 +23,7 @@ type MenuResponse struct {
 	Price       int    `json:"price"`
 	IsAvailable bool   `json:"is_available"`
 	Category    string `json:"category"`
+	Description string `json:"description"`
 	ImagePath   string `json:"image_path"`
 	Booth       struct {
 		ID   uint   `json:"id"`

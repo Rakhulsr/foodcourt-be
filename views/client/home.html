@@ -10,7 +10,7 @@
                 </div>
             </div>
 
-            <form action="/api" method="GET" class="relative w-full md:w-96 group">
+            <form action="/" method="GET" class="relative w-full md:w-96 group">
                 <input type="text" name="keyword" value="{{ .Keyword }}"
                        placeholder="Cari makanan atau nama booth..." 
                        class="w-full py-3 pl-12 pr-10 rounded-full text-sm focus:outline-none shadow-inner text-gray-700 bg-white/95 backdrop-blur focus:bg-white focus:ring-2 focus:ring-sukatani-light transition">
@@ -20,15 +20,19 @@
                 </div>
 
                 {{ if .Keyword }}
-                <a href="/api" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-red-500 transition" title="Hapus pencarian">
+                <a href="/" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-red-500 transition" title="Hapus pencarian">
                     <i data-lucide="x-circle" class="w-5 h-5 fill-gray-100"></i>
                 </a>
                 {{ end }}
             </form> 
-            <a href="/cart" class="hidden md:flex items-center gap-2 text-white bg-white/10 px-4 py-2 rounded-full hover:bg-white/20 transition">
-                <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-                <span id="desktop-cart-count" class="text-sm font-semibold">
-                    Keranjang ({{ if .TotalQty }}{{ .TotalQty }}{{ else }}0{{ end }})
+
+            <a href="/cart" class="hidden md:flex items-center group relative bg-white/10 hover:bg-white text-white hover:text-sukatani-green px-5 py-2.5 rounded-full transition-all duration-300 shadow-sm hover:shadow-lg hover:-translate-y-0.5 border border-white/20">
+                <i data-lucide="shopping-cart" class="w-5 h-5 mr-2 transition-transform group-hover:scale-110"></i>
+                
+                <span class="font-semibold text-sm tracking-wide">Keranjang</span>
+
+                <span id="desktop-cart-count" class="ml-3 bg-red-500 group-hover:bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-inner min-w-[24px] text-center border border-white/20 group-hover:border-transparent transition-colors">
+                    {{ if .TotalQty }}{{ .TotalQty }}{{ else }}0{{ end }}
                 </span>
             </a>
         </div>
@@ -92,7 +96,13 @@
                                 <div class="flex-1 min-w-0 flex flex-col justify-between h-24 md:h-28 py-1">
                                     <div>
                                         <h3 class="font-bold text-gray-800 truncate text-base">{{ $menu.Name }}</h3>
-                                        <p class="text-xs text-gray-500 line-clamp-2 mt-1">Nikmati menu spesial ini.</p>
+                                        <p class="text-[10px] text-gray-300 leading-tight mb-2 line-clamp-2 h-8">
+                                        {{ if $menu.Description }}
+                                            {{ $menu.Description }}
+                                        {{ else }}
+                                            Nikmati {{ $menu.Name }} spesial dari {{ $booth.Name }}.
+                                        {{ end }}
+                                </p>
                                     </div>
                                     <div class="flex justify-between items-end">
                                         <div class="font-mono font-bold text-sukatani-green text-lg">{{ formatRupiah $menu.Price }}
@@ -140,14 +150,21 @@
 
     </main>
 
-    <div class="md:hidden fixed bottom-[70px] left-0 right-0 px-4 z-30 max-w-md mx-auto hidden">
+   <div id="floating-cart-bar" 
+         class="fixed bottom-[85px] left-0 right-0 px-4 z-30 max-w-md mx-auto transition-all duration-500 transform {{ if eq .TotalQty 0 }}translate-y-20 opacity-0{{ else }}translate-y-0 opacity-100{{ end }}">
+        
         <div class="bg-sukatani-green text-white rounded-xl p-4 shadow-2xl flex justify-between items-center border border-white/10 backdrop-blur-sm">
-            <div>
-                <p class="text-xs text-gray-300 font-medium">Pesanan Anda</p>
-                <p class="text-xs font-light opacity-80">Item ditambahkan...</p>
+            <div class="flex-1 min-w-0 mr-4">
+                <p class="text-xs text-yellow-200 font-bold mb-0.5">
+                    Pesanan Anda: <span id="float-qty">{{ .TotalQty }}</span> Items
+                </p>
+                <p id="float-summary" class="text-xs font-medium text-white/90 truncate">
+                    {{ if .CartSummary }}{{ .CartSummary }}{{ else }}Belum ada item{{ end }}
+                </p>
             </div>
-            <a href="/cart" class="bg-white text-sukatani-green p-2 rounded-full hover:bg-gray-100 transition shadow-lg">
-                <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            
+            <a href="/cart" class="bg-white text-sukatani-green p-2.5 rounded-full hover:bg-gray-100 transition shadow-lg flex-shrink-0 active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </a>
         </div>
     </div>

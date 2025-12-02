@@ -30,17 +30,18 @@ func NewOrderRepository(db *gorm.DB) OrderRepository {
 }
 
 func (r *orderRepository) Create(order *model.Order) error {
-	return r.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Create(order).Error; err != nil {
-			return err
-		}
-		return tx.Create(&order.Items).Error
-	})
+	return r.db.Omit("Items.ID").Create(order).Error
 }
 
 func (r *orderRepository) FindByCode(code string) (*model.Order, error) {
 	var order model.Order
-	err := r.db.Preload("Items").Where("order_code = ?", code).First(&order).Error
+	err := r.db.
+		Preload("Items").
+		Preload("Items.Menu").
+		Preload("Items.Booth").
+		Where("order_code = ?", code).
+		First(&order).Error
+
 	if err != nil {
 		return nil, err
 	}
@@ -74,12 +75,14 @@ func (r *orderRepository) FindAll(page int, limit int, status string) ([]model.O
 		return nil, 0, err
 	}
 
-	err := query.Preload("Items").
+	err := query.
+		Preload("Items").
+		Preload("Items.Menu").
+		Preload("Items.Booth").
 		Order("created_at DESC").
 		Limit(limit).
 		Offset(offset).
 		Find(&orders).Error
-
 	return orders, total, err
 }
 func (r *orderRepository) UpdatePaymentStatus(orderCode string, status string) error {
@@ -100,7 +103,7 @@ func (r *orderRepository) GetTotalIncomeToday() (int, error) {
 	today := time.Now().Truncate(24 * time.Hour)
 
 	err := r.db.Model(&model.Order{}).
-		Where("payment_status = ? AND created_at >= ?", "paid", today).
+		Where("order_status = ? AND created_at >= ?", "completed", today).
 		Select("COALESCE(SUM(total_amount), 0)").
 		Scan(&total).Error
 
@@ -122,7 +125,10 @@ func (r *orderRepository) FindOrdersToday() ([]model.Order, error) {
 	var orders []model.Order
 	today := time.Now().Truncate(24 * time.Hour)
 
-	err := r.db.Preload("Items").
+	err := r.db.
+		Preload("Items").
+		Preload("Items.Menu").
+		Preload("Items.Booth").
 		Where("created_at >= ?", today).
 		Order("created_at DESC").
 		Find(&orders).Error

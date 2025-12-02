@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/Rakhulsr/foodcourt/config"
 	"github.com/Rakhulsr/foodcourt/internal/model"
@@ -16,30 +17,34 @@ func NewPaymentService() *PaymentUsecase {
 }
 
 func (s *PaymentUsecase) CreateInvoice(order model.Order) (*invoice.Invoice, error) {
-	desc := fmt.Sprintf("Pembayaran pesanan: %s ", order.OrderCode)
-	feUrlSucess := fmt.Sprintf("https://your-frontend/thank-you/%s", order.OrderCode)
-	feUrlFailed := fmt.Sprintf("https://your-frontend/payment-failed/%s", order.OrderCode)
 
-	req := invoice.CreateInvoiceRequest{
-		ExternalId: order.OrderCode,
-
-		Description: &desc,
-		Amount:      float64(order.TotalAmount),
-		// PayerEmail:         "",
-		Customer: &invoice.CustomerObject{
-			GivenNames: *invoice.NewNullableString(&order.CustomerName),
-			// Jika nanti ingin tambah phone/email, taruh disini.
-			// Email: xendit.PtrString(order.Email),
-		},
-		SuccessRedirectUrl: &feUrlSucess,
-		FailureRedirectUrl: &feUrlFailed,
-		ReminderTime:       func() *float32 { v := float32(15); return &v }(),
+	baseURL := os.Getenv("BASE_URL")
+	if baseURL == "" {
+		baseURL = "http://localhost:8080"
 	}
+
+	successURL := fmt.Sprintf("%s/order/success/%s", baseURL, order.OrderCode)
+	failURL := fmt.Sprintf("%s/cart", baseURL)
+
+	createInvoiceRequest := *invoice.NewCreateInvoiceRequest(
+		order.OrderCode,
+		float64(order.TotalAmount),
+	)
+
+	createInvoiceRequest.SetDescription(fmt.Sprintf("Pembayaran Order %s - %s", order.OrderCode, order.CustomerName))
+	createInvoiceRequest.SetSuccessRedirectUrl(successURL)
+	createInvoiceRequest.SetFailureRedirectUrl(failURL)
+	createInvoiceRequest.SetCurrency("IDR")
+	createInvoiceRequest.SetReminderTime(1)
 
 	resp, _, err := config.XenditClient.InvoiceApi.
 		CreateInvoice(context.Background()).
-		CreateInvoiceRequest(req).
+		CreateInvoiceRequest(createInvoiceRequest).
 		Execute()
 
-	return resp, err
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }

@@ -1,0 +1,72 @@
+{{ define "admin_log_list.html" }}
+{{ template "admin_header" . }}
+
+    <div class="bg-sukatani-light w-full p-4 mb-8 rounded-sm shadow-sm">
+        <h2 class="text-2xl font-bold text-black">WhatsApp Logs</h2>
+    </div>
+
+    <div class="overflow-x-auto rounded-t-lg border border-gray-300 bg-white shadow-sm">
+        <table class="min-w-full text-sm text-left">
+            <thead class="bg-sukatani-green text-white uppercase font-bold">
+                <tr>
+                    <th class="py-3 px-4 w-16">ID</th>
+                    <th class="py-3 px-4">Waktu</th>
+                    <th class="py-3 px-4">Tipe</th>
+                    <th class="py-3 px-4">Order ID</th>
+                    <th class="py-3 px-4">Booth ID</th>
+                    <th class="py-3 px-4">Status</th>
+                </tr>
+            </thead>
+          <tbody class="text-gray-700">
+                {{ range .Logs }}
+                <tr class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="py-3 px-4">{{ .ID }}</td>
+                    <td class="py-3 px-4 text-xs">{{ formatDate .SentAt }}</td>
+                    <td class="py-3 px-4">
+                        <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs uppercase font-bold">{{ .MessageType }}</span>
+                    </td>
+                    
+                    <td class="py-3 px-4 font-mono font-bold text-sukatani-green">
+                        {{ if .Order }}
+                            {{ .Order.OrderCode }}
+                        {{ else }}
+                            <span class="text-gray-400">-</span>
+                        {{ end }}
+                    </td>
+
+                    <td class="py-3 px-4">
+                         {{ if .Booth }}
+                            {{ .Booth.Name }}
+                         {{ else }}
+                            <span class="text-gray-400">-</span>
+                         {{ end }}
+                    </td>
+
+                    <td class="py-3 px-4">
+                        <span class="text-green-600 flex items-center gap-1 font-bold text-xs">
+                            <i data-lucide="check-circle" class="w-3 h-3"></i> {{ .Status }}
+                        </span>
+                    </td>
+                </tr>
+                {{ else }}
+                <tr>
+                    <td colspan="6" class="py-8 text-center text-gray-500">Belum ada riwayat log.</td>
+                </tr>
+                {{ end }}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4 flex justify-between items-center text-gray-600 text-sm">
+        <span>Total Logs: {{ .Total }}</span>
+        <div class="flex gap-2">
+            {{ if gt .Page 1 }}
+            <a href="/api/admin/logs?page={{ add .Page -1 }}" class="px-3 py-1 border rounded hover:bg-gray-100">Prev</a>
+            {{ end }}
+            <span class="px-3 py-1 border bg-gray-200">{{ .Page }}</span>
+            <a href="/api/admin/logs?page={{ add .Page 1 }}" class="px-3 py-1 border rounded hover:bg-gray-100">Next</a>
+        </div>
+    </div>
+
+{{ template "admin_footer" . }}
+{{ end }}

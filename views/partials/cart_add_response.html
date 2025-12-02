@@ -2,17 +2,38 @@
 
     {{ template "flash.html" (dict "Type" "success" "Message" "Menu berhasil masuk keranjang!") }}
 
+    <span id="desktop-cart-count" hx-swap-oob="true" 
+          class="ml-3 bg-red-500 group-hover:bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-inner min-w-[24px] text-center border border-white/20 group-hover:border-transparent transition-colors">
+        {{ .TotalQty }}
+    </span>
+
     <span id="mobile-cart-count" hx-swap-oob="true"
           class="absolute top-1 right-1 bg-red-500 text-white text-[9px] font-bold px-1.5 rounded-full border border-white">
         {{ .TotalQty }}
     </span>
 
-    <span id="desktop-cart-count" hx-swap-oob="true" class="text-sm font-semibold">
-        Keranjang ({{ .TotalQty }})
-    </span>
-
-    <p id="floating-qty" hx-swap-oob="true" class="text-xs text-gray-300 font-medium">
-        Pesanan Anda: <span class="font-bold text-white">{{ .TotalQty }} Items</span>
+    <span id="float-qty" hx-swap-oob="true">{{ .TotalQty }}</span>
+    
+    <p id="float-summary" hx-swap-oob="true" class="text-xs font-medium text-white/90 truncate">
+        {{ .CartSummary }}
     </p>
+
+    <div id="floating-cart-bar" hx-swap-oob="true"
+         class="fixed bottom-[85px] left-0 right-0 px-4 z-30 max-w-md mx-auto transition-all duration-500 transform translate-y-0 opacity-100">
+        
+        <div class="bg-sukatani-green text-white rounded-xl p-4 shadow-2xl flex justify-between items-center border border-white/10 backdrop-blur-sm">
+            <div class="flex-1 min-w-0 mr-4">
+                <p class="text-xs text-yellow-200 font-bold mb-0.5">
+                    Pesanan Anda: <span id="float-qty">{{ .TotalQty }}</span> Items
+                </p>
+                <p id="float-summary" class="text-xs font-medium text-white/90 truncate">
+                    {{ .CartSummary }}
+                </p>
+            </div>
+            <a href="/cart" class="bg-white text-sukatani-green p-2.5 rounded-full hover:bg-gray-100 transition shadow-lg flex-shrink-0 active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+        </div>
+    </div>
 
 {{ end }}

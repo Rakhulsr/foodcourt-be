@@ -46,6 +46,7 @@ func (u *menuUseCase) ListActive() (*dto.MenuListResponse, error) {
 			IsAvailable: m.IsAvailable,
 			ImagePath:   m.ImagePath,
 			Category:    m.Category,
+			Description: m.Description,
 			Booth: struct {
 				ID   uint   `json:"id"`
 				Name string `json:"name"`
@@ -70,6 +71,7 @@ func (u *menuUseCase) ListAll() (*dto.MenuListResponse, error) {
 			Price:       m.Price,
 			IsAvailable: m.IsAvailable,
 			ImagePath:   m.ImagePath,
+			Description: m.Description,
 			Booth: struct {
 				ID   uint   `json:"id"`
 				Name string `json:"name"`
@@ -92,6 +94,7 @@ func (u *menuUseCase) GetByID(id uint) (*dto.MenuResponse, error) {
 		IsAvailable: menu.IsAvailable,
 		Category:    menu.Category,
 		ImagePath:   menu.ImagePath,
+		Description: menu.Description,
 		Booth: struct {
 			ID   uint   `json:"id"`
 			Name string `json:"name"`
@@ -112,6 +115,7 @@ func (u *menuUseCase) ListActiveByBoothID(id uint) (*dto.MenuListResponse, error
 			Name:        m.Name,
 			Price:       m.Price,
 			IsAvailable: m.IsAvailable,
+			Description: m.Description,
 			Booth: struct {
 				ID   uint   `json:"id"`
 				Name string `json:"name"`
@@ -137,6 +141,7 @@ func (u *menuUseCase) FindByName(keyword string) (*dto.MenuListResponse, error) 
 			IsAvailable: m.IsAvailable,
 			ImagePath:   m.ImagePath,
 			Category:    m.Category,
+			Description: m.Description,
 			Booth: struct {
 				ID   uint   `json:"id"`
 				Name string `json:"name"`
@@ -159,6 +164,7 @@ func (u *menuUseCase) FindByCategory(category string) (*dto.MenuListResponse, er
 			Name:        m.Name,
 			Price:       m.Price,
 			IsAvailable: m.IsAvailable,
+			Description: m.Description,
 			Booth: struct {
 				ID   uint   `json:"id"`
 				Name string `json:"name"`
@@ -182,6 +188,7 @@ func (u *menuUseCase) Create(req dto.MenuCreateRequest, imgPath string) (*dto.Me
 		IsAvailable: true,
 		ImagePath:   imgPath,
 		Category:    req.Category,
+		Description: req.Description,
 	}
 
 	if err := u.repo.Create(menu); err != nil {
@@ -195,6 +202,7 @@ func (u *menuUseCase) Create(req dto.MenuCreateRequest, imgPath string) (*dto.Me
 		IsAvailable: menu.IsAvailable,
 		Category:    menu.Category,
 		ImagePath:   menu.ImagePath,
+		Description: menu.Description,
 		Booth: struct {
 			ID   uint   `json:"id"`
 			Name string `json:"name"`
@@ -235,6 +243,7 @@ func (u *menuUseCase) Update(id uint, req dto.MenuUpdateRequest, imagePath strin
 		IsAvailable: menu.IsAvailable,
 		Category:    menu.Category,
 		ImagePath:   menu.ImagePath,
+		Description: menu.Description,
 		Booth: struct {
 			ID   uint   `json:"id"`
 			Name string `json:"name"`

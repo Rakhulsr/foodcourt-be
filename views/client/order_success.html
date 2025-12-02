@@ -1,0 +1,82 @@
+{{ define "order_success.html" }}
+{{ template "client_header" . }}
+
+<main class="container mx-auto px-4 pt-10 pb-20 min-h-screen max-w-md flex flex-col items-center justify-center">
+
+    <div class="mb-6 bg-green-100 p-4 rounded-full animate-bounce">
+        <i data-lucide="check-circle" class="w-16 h-16 text-sukatani-green"></i>
+    </div>
+
+    <h1 class="text-2xl font-bold text-gray-800 mb-2">Pesanan Diterima!</h1>
+    <p class="text-gray-500 text-center text-sm mb-8">
+        Terima kasih, pesanan Anda telah masuk ke sistem kami.
+    </p>
+
+    <div class="w-full bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 relative">
+        <div class="absolute top-0 left-0 right-0 h-2 bg-sukatani-green"></div>
+
+        <div class="p-6">
+            <div class="text-center border-b border-dashed border-gray-300 pb-6 mb-6">
+                <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">Nomor Order</p>
+                <h2 class="text-3xl font-mono font-bold text-sukatani-dark">{{ .Order.OrderCode }}</h2>
+                
+                <div class="mt-4 inline-block px-4 py-1 rounded-full bg-yellow-100 text-yellow-800 text-xs font-bold border border-yellow-200">
+                    STATUS: {{ .Order.PaymentStatus }}
+                </div>
+            </div>
+
+            <div class="space-y-3 text-sm text-gray-600 mb-6">
+                <div class="flex justify-between">
+                    <span>Nama Pemesan</span>
+                    <span class="font-bold text-gray-800">{{ .Order.CustomerName }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Tanggal</span>
+                    <span>{{ formatDate .Order.CreatedAt }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Metode Bayar</span>
+                    <span class="uppercase font-bold text-sukatani-green">{{ .Order.PaymentMethod }}</span>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 rounded-xl p-4 mb-6">
+                <h3 class="text-xs font-bold text-gray-400 uppercase mb-3">Rincian Menu</h3>
+                <div class="space-y-2 text-sm">
+                    {{ range .Order.Items }}
+                    <div class="flex justify-between">
+                        <span><span class="font-bold">{{ .Quantity }}x</span> Menu ID {{ .MenuID }}</span> <span class="font-mono">{{ formatRupiah .PriceAtPurchase }}</span>
+                    </div>
+                    {{ end }}
+                </div>
+                <div class="border-t border-gray-200 mt-3 pt-3 flex justify-between items-center">
+                    <span class="font-bold text-gray-800">Total Bayar</span>
+                    <span class="font-bold text-lg text-sukatani-dark font-mono">{{ formatRupiah .Order.TotalAmount }}</span>
+                </div>
+            </div>
+
+            {{ if eq .Order.PaymentMethod "cash" }}
+            <div class="bg-yellow-50 border border-yellow-100 p-3 rounded-lg flex gap-3 items-start">
+                <i data-lucide="info" class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5"></i>
+                <p class="text-xs text-yellow-800 leading-relaxed">
+                    Silakan menuju kasir dan tunjukkan <strong>Nomor Order</strong> di atas untuk melakukan pembayaran tunai.
+                </p>
+            </div>
+            {{ end }}
+        </div>
+    </div>
+
+   <a href="/" 
+       hx-boost="false" 
+       class="mt-8 flex items-center gap-2 text-sukatani-green font-bold hover:underline transition transform active:scale-95">
+        <i data-lucide="home" class="w-4 h-4"></i>
+        Kembali ke Beranda
+    </a>
+
+</main>
+
+<script>
+    lucide.createIcons();
+   
+</script>
+{{ end }}
