@@ -34,6 +34,13 @@
             opacity: 0;
         }
 
+        .htmx-request .icon-normal { 
+            display: none; 
+        }
+        .htmx-request .htmx-indicator {
+             display: inline-block;
+         }
+
     </style>
     
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
@@ -172,6 +179,28 @@
                 }
             });
         });
+
+
+        function disableChatBtn(element) {
+            
+            element.classList.remove('bg-green-100', 'text-green-700', 'hover:bg-green-200');
+            element.classList.add('bg-gray-200', 'text-gray-500', 'cursor-wait');
+            
+         
+            const span = element.querySelector('span');
+            if (span) span.innerText = "Membuka WA...";
+
+            setTimeout(() => {
+                element.removeAttribute('href');
+                element.style.pointerEvents = 'none'; 
+                if (span) span.innerText = "Terkirim"; 
+                
+             
+                const icon = element.querySelector('i');
+                if(icon) icon.setAttribute('data-lucide', 'check');
+                lucide.createIcons();
+            }, 500);
+        }
     </script>
 </body>
 </html>

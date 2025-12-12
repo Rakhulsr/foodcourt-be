@@ -66,3 +66,17 @@ func (h *OrderHandler) AdminUpdateStatus(c *gin.Context) {
 
 	c.HTML(http.StatusOK, "admin_order_row.html", data)
 }
+
+func (h *OrderHandler) SendNotification(c *gin.Context) {
+	code := c.Param("code")
+
+	err := h.orderUsecase.SendOrderNotificationToSeller(code)
+	if err != nil {
+
+		c.Header("HX-Trigger", `{"showMessage": {"type": "error", "message": "Gagal kirim WA: `+err.Error()+`"}}`)
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	c.HTML(http.StatusOK, "button_notify_sent.html", nil)
+}

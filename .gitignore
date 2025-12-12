@@ -24,7 +24,7 @@ vendor/
 
 # Build artifacts
 /bin/
-/pkg/
+
 *.bin
 
 # Local environment
