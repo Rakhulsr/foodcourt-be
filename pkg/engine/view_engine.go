@@ -75,17 +75,30 @@ func SetupViewEngine(r *gin.Engine) {
 			return dict, nil
 		},
 
-		"groupByBooth": func(items []model.OrderItem) []map[string]interface{} {
+		"groupByBooth": func(order model.Order) []map[string]interface{} {
 			grouped := make(map[uint]map[string]interface{})
 
-			for _, item := range items {
+			for _, item := range order.Items {
 				boothID := item.BoothID
+
 				if _, exists := grouped[boothID]; !exists {
+
+					isNotified := false
+					for _, log := range order.Logs {
+
+						if log.BoothID != nil && *log.BoothID == boothID {
+							isNotified = true
+							break
+						}
+					}
+
 					grouped[boothID] = map[string]interface{}{
-						"Booth": item.Booth,
-						"Items": []model.OrderItem{},
+						"Booth":      item.Booth,
+						"Items":      []model.OrderItem{},
+						"IsNotified": isNotified,
 					}
 				}
+
 				currentItems := grouped[boothID]["Items"].([]model.OrderItem)
 				grouped[boothID]["Items"] = append(currentItems, item)
 			}

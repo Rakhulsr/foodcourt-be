@@ -22,5 +22,6 @@ type Order struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	Items []OrderItem `gorm:"foreignKey:OrderID"`
+	Items []OrderItem   `gorm:"foreignKey:OrderID"`
+	Logs  []WhatsAppLog `gorm:"foreignKey:OrderID"`
 }

@@ -28,17 +28,18 @@ type orderUsecase struct {
 	menuRepo  repository.MenuRepository
 	paymentUc *PaymentUsecase
 	waUc      *WhatsAppUsecase
+	logUC     LogUseCase
 }
 
-func NewOrderUsecase(or repository.OrderRepository, mr repository.MenuRepository, ps *PaymentUsecase, wa WhatsAppUsecase) *orderUsecase {
+func NewOrderUsecase(or repository.OrderRepository, mr repository.MenuRepository, ps *PaymentUsecase, wa WhatsAppUsecase, log LogUseCase) *orderUsecase {
 	return &orderUsecase{
 		orderRepo: or,
 		menuRepo:  mr,
 		paymentUc: ps,
 		waUc:      &wa,
+		logUC:     log,
 	}
 }
-
 func (u *orderUsecase) CreateOrder(req dto.CreateOrderRequest) (*dto.CreateOrderResponse, error) {
 	var orderItems []model.OrderItem
 	total := 0
@@ -215,9 +216,10 @@ func (u *orderUsecase) ProcessXenditCallback(payload dto.XenditCallbackRequest) 
 			return err
 		}
 
-		if err := u.orderRepo.UpdateOrderStatus(order.OrderCode, "confirmed"); err != nil {
+		if err := u.orderRepo.UpdateOrderStatus(order.OrderCode, "preparing"); err != nil {
 			return err
 		}
+
 	} else if payload.Status == "EXPIRED" {
 		u.orderRepo.UpdatePaymentStatus(order.OrderCode, "expired")
 		u.orderRepo.UpdateOrderStatus(order.OrderCode, "cancelled")
@@ -227,39 +229,47 @@ func (u *orderUsecase) ProcessXenditCallback(payload dto.XenditCallbackRequest) 
 }
 
 func (u *orderUsecase) SendOrderNotificationToSeller(orderCode string) error {
-
 	order, err := u.orderRepo.FindByCode(orderCode)
 	if err != nil {
 		return err
-	}
-
-	fmt.Printf("Order Code: %s, Items Count: %d\n", order.OrderCode, len(order.Items))
-	if len(order.Items) > 0 {
-		fmt.Printf("First Item Menu: %v\n", order.Items[0].Menu.Name)
-		fmt.Printf("First Item Booth: %v\n", order.Items[0].Booth.Name)
 	}
 
 	type ItemDetail struct {
 		MenuName string
 		Qty      int
 		Notes    string
-		BoothWA  string
 	}
-	boothOrders := make(map[string][]ItemDetail)
+
+	type GroupData struct {
+		BoothID   uint
+		BoothName string
+		BoothWA   string
+		Items     []ItemDetail
+	}
+
+	groups := make(map[uint]*GroupData)
 
 	for _, item := range order.Items {
+
+		if _, exists := groups[item.BoothID]; !exists {
+			groups[item.BoothID] = &GroupData{
+				BoothID:   item.BoothID,
+				BoothName: item.Booth.Name,
+				BoothWA:   item.Booth.WhatsApp,
+				Items:     []ItemDetail{},
+			}
+		}
 
 		detail := ItemDetail{
 			MenuName: item.Menu.Name,
 			Qty:      item.Quantity,
 			Notes:    item.Notes,
-			BoothWA:  item.Booth.WhatsApp,
 		}
-		boothOrders[item.Booth.Name] = append(boothOrders[item.Booth.Name], detail)
+		groups[item.BoothID].Items = append(groups[item.BoothID].Items, detail)
 	}
 
-	for boothName, items := range boothOrders {
-		targetWA := items[0].BoothWA
+	for _, group := range groups {
+		targetWA := group.BoothWA
 
 		paymentStatus := "BELUM LUNAS ❌"
 		if order.PaymentStatus == "paid" {
@@ -267,24 +277,30 @@ func (u *orderUsecase) SendOrderNotificationToSeller(orderCode string) error {
 		}
 
 		msg := fmt.Sprintf("*PESANAN MASUK!* 🔔\nKepada: *%s*\n\nOrder: *%s*\nMeja: *%s*\nPemesan: *%s*\nStatus: *%s*\n\n🍽️ *MENU:*\n",
-			boothName, order.OrderCode, order.TableNumber, order.CustomerName, paymentStatus)
+			group.BoothName, order.OrderCode, order.TableNumber, order.CustomerName, paymentStatus)
 
-		for _, item := range items {
+		for _, item := range group.Items {
 			noteText := ""
 			if item.Notes != "" {
 				noteText = fmt.Sprintf(" _(%s)_", item.Notes)
 			}
 			msg += fmt.Sprintf("▪️ %dx %s%s\n", item.Qty, item.MenuName, noteText)
 		}
-
-		bgCtx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
-		defer cancel()
-
 		msg += "\nMohon segera diproses. Terima kasih! 🙏"
 
+		bgCtx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+
 		err := u.waUc.SendMessage(bgCtx, targetWA, msg)
+		cancel()
+
 		if err != nil {
-			return fmt.Errorf("gagal kirim ke %s: %v", boothName, err)
+			return fmt.Errorf("gagal kirim ke %s: %v", group.BoothName, err)
+		}
+
+		err = u.logUC.RecordLog(order.ID, group.BoothID, targetWA)
+		if err != nil {
+			fmt.Printf("⚠️ Gagal menyimpan log WA: %v\n", err)
+
 		}
 	}
 

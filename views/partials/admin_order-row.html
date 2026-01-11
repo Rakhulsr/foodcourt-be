@@ -95,7 +95,18 @@
             </form>
 
             <div id="notify-btn-area-{{ $order.OrderCode }}">
-                {{ if not $isFinal }}
+                
+                {{ $isFinal := or (eq $order.OrderStatus "completed") (eq $order.OrderStatus "cancelled") }}
+                
+                {{ $isNotified := gt (len $order.Logs) 0 }}
+
+                {{ if $isNotified }}
+                    <div class="text-[10px] text-green-700 bg-green-50 border border-green-200 px-2 py-1.5 rounded text-center flex items-center justify-center gap-1 cursor-default" title="Pesan sudah dikirim ke penjual">
+                        <i data-lucide="check-double" class="w-3 h-3"></i> 
+                        <span>Terkirim</span>
+                    </div>
+
+                {{ else if not $isFinal }}
                     <button hx-post="/api/admin/orders/{{ $order.OrderCode }}/notify"
                             hx-headers='{"X-CSRF-Token": "{{ $.CsrfToken }}"}'
                             hx-swap="outerHTML"
@@ -104,8 +115,9 @@
                         <i data-lucide="send" class="w-3 h-3"></i>
                         <span>Kirim Pesan ke Penjual</span>
                     </button>
+
                 {{ else }}
-                     <div class="text-[10px] text-gray-400 bg-gray-50 border border-gray-200 px-2 py-1.5 rounded text-center flex items-center justify-center gap-1">
+                    <div class="text-[10px] text-gray-400 bg-gray-50 border border-gray-200 px-2 py-1.5 rounded text-center flex items-center justify-center gap-1 cursor-not-allowed">
                         <i data-lucide="check-circle" class="w-3 h-3"></i> Selesai
                      </div>
                 {{ end }}

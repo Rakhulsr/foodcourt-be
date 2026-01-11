@@ -26,15 +26,15 @@ func NewRouter(db *gorm.DB) *gin.Engine {
 	adminRepo := repository.NewAdminRepository(db)
 	orderRepo := repository.NewOrderRepository(db)
 	logRepo := repository.NewWhatsAppLogRepository(db)
-	waUC := usecase.NewWhattsAppUsecase()
 
+	waUC := usecase.NewWhattsAppUsecase()
 	boothUC := usecase.NewBoothUseCase(boothRepo)
 	menuUC := usecase.NewMenuUseCase(menuRepo, boothRepo)
 	authUC := usecase.NewAuthUseCase(adminRepo)
 	paymentUC := usecase.NewPaymentService()
 
-	orderUC := usecase.NewOrderUsecase(orderRepo, menuRepo, paymentUC, *waUC)
 	logUC := usecase.NewLogUseCase(logRepo)
+	orderUC := usecase.NewOrderUsecase(orderRepo, menuRepo, paymentUC, *waUC, logUC)
 
 	adminMenuHandler := adminHandler.NewMenuHandler(menuUC, boothUC)
 	adminBoothHandler := adminHandler.NewBoothHandler(boothUC)

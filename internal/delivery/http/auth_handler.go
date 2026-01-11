@@ -33,14 +33,19 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	var req dto.LoginRequest
 
 	if err := c.ShouldBind(&req); err != nil {
-
-		c.HTML(http.StatusBadRequest, "login.html", gin.H{"Error": "Username dan Password wajib diisi"})
+		c.HTML(http.StatusBadRequest, "login.html", gin.H{
+			"Error":      "Username dan Password wajib diisi",
+			"csrf_token": c.GetString("csrf_token"),
+		})
 		return
 	}
 
 	resp, err := h.authUC.Login(req)
 	if err != nil {
-		c.HTML(http.StatusUnauthorized, "login.html", gin.H{"Error": "Username atau Password salah"})
+		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
+			"Error":      "Username atau Password salah",
+			"csrf_token": c.GetString("csrf_token"),
+		})
 		return
 	}
 

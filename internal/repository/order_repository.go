@@ -39,6 +39,7 @@ func (r *orderRepository) FindByCode(code string) (*model.Order, error) {
 		Preload("Items").
 		Preload("Items.Menu").
 		Preload("Items.Booth").
+		Preload("Logs").
 		Where("order_code = ?", code).
 		First(&order).Error
 
@@ -79,6 +80,7 @@ func (r *orderRepository) FindAll(page int, limit int, status string) ([]model.O
 		Preload("Items").
 		Preload("Items.Menu").
 		Preload("Items.Booth").
+		Preload("Logs").
 		Order("created_at DESC").
 		Limit(limit).
 		Offset(offset).
