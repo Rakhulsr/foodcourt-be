@@ -80,3 +80,12 @@ docker-compose.override.yml
 
 # Optional: jika pakai Air untuk hot reload
 tmp/
+
+
+wa_session.db
+wa_session.db-wal
+wa_session.db-shm
+wa_session.db-journal
+
+foodcourt-app
+main
