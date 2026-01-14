@@ -6,6 +6,11 @@
 *.so
 *.dylib
 
+*.db
+*.gob
+wa_session*
+auth_info*
+
 # Go workspace file
 go.work
 go.work.sum
@@ -89,3 +94,4 @@ wa_session.db-journal
 
 foodcourt-app
 main
+

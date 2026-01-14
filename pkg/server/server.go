@@ -17,5 +17,5 @@ func Run() error {
 	r := router.NewRouter(db)
 
 	log.Println("Server starting on :8080")
-	return r.Run(":8080")
+	return r.Run(":8081")
 }
